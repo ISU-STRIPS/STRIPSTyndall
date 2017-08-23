@@ -8,6 +8,7 @@
 #' year, response, and value.
 #' @import STRIPSMeta
 #' @import dplyr
+#' @export
 #' @examples
 #' d <- pnas_data()
 #' summary(d)
