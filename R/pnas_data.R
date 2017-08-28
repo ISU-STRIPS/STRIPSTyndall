@@ -3,7 +3,8 @@
 #' This function will calculate the revenue for a watershed-year combination
 #' for watersheds that have a certain amount of prairie.
 #'
-#' @param prairie_cost A scalar indicating how much the prairie costs.
+#' @param prairie_cost_per_acre A scalar indicating how much the prairie per
+#' acre in dollars.
 #' @return A \code{data.frame} containing the columns PI, source, watershed,
 #' year, response, and value.
 #' @import STRIPSMeta
@@ -13,20 +14,18 @@
 #' d <- pnas_data()
 #' summary(d)
 #'
-pnas_data <- function(prairie_cost = 95) {
+pnas_data <- function(prairie_cost_per_acre = 95) {
   hectares_per_acre = 0.404686
 
   watersheds <- STRIPSMeta::watersheds  %>%
-    mutate(crop_prop = 1-prairie_pct/100,
-           crop_acre = size_ha*crop_prop,
-           prairie_acre = size_ha*(1-crop_prop)) %>%
-    select_("watershed", "crop_acre", "prairie_acre")
+    mutate(prairie_prop = prairie_pct/100) %>%
+    select(watershed, prairie_prop)
 
   # Calculate watershed total revenue which includes cost of prairie
   d <- revenue %>%
     left_join(watersheds) %>%
-    mutate(value = (crop_acre * revenue - prairie_acre * prairie_cost)/(crop_acre+prairie_acre),
-           value = value * hectares_per_acre) %>%
+    mutate(value = (1-prairie_prop) * revenue - prairie_prop * prairie_cost_per_acre,
+           value = value / hectares_per_acre) %>%
     filter(year>2007) %>%
     left_join(STRIPSMeta::crop_seed_info) %>%
     select_("watershed","year","value","crop_species")
