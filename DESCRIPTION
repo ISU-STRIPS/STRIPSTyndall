@@ -1,6 +1,6 @@
 Package: STRIPSTyndall
 Title: STRIPS Tyndall Economic data
-Version: 0.1
+Version: 0.1.1
 Authors@R: c(
     person("Jarad", "Niemi", email = "niemi@iastate.edu", role = c("aut", "cre")),
     person("John", "Tyndall", email = "jtyndall@iastate.edu", role = "aut")
