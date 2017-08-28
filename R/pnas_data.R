@@ -22,7 +22,7 @@ pnas_data <- function(prairie_cost_per_acre = 95) {
     select(watershed, prairie_prop)
 
   # Calculate watershed total revenue which includes cost of prairie
-  d <- revenue %>%
+  d <- STRIPSTyndall::revenue %>%
     left_join(watersheds) %>%
     mutate(value = (1-prairie_prop) * revenue - prairie_prop * prairie_cost_per_acre,
            value = value / hectares_per_acre) %>%
