@@ -4,7 +4,8 @@
 \name{revenue}
 \alias{revenue}
 \title{Revenue data}
-\format{A \code{data.frame} with 3 variables: watershed, year, and revenue}
+\format{A \code{data.frame} with 3 variables: watershed, year, and
+revenue ($/acre).}
 \usage{
 revenue
 }

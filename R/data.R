@@ -5,7 +5,8 @@
 #' on how these revenue values were obtained, see the xlsx file in the data-raw
 #' folder.
 #'
-#' @format A \code{data.frame} with 3 variables: watershed, year, and revenue
+#' @format A \code{data.frame} with 3 variables: watershed, year, and
+#' revenue ($/acre).
 #'
 #' @seealso \code{\link{pnas_data}}
 "revenue"
