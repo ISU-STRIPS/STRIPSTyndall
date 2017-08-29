@@ -1,0 +1,96 @@
+---
+title: "Revenue comparison on watersheds"
+author: "Jarad Niemi"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r, message=FALSE}
+library(dplyr)
+library(tidyr)
+library(lme4)
+library(lsmeans)
+library(multcomp)
+```
+
+```{r}
+sessionInfo()
+```
+
+This analysis will look at the revenue by watershed which accounts for the 
+amount of crop area that has been converted to prairie.
+The assumed prairie cost per acre is 
+
+```{r}
+prairie_cost_per_acre = 95
+```
+
+
+## Simple analysis
+
+This analysis will calculate the mean difference in revenue for both corn and
+soybean comparing the all crop (control) to the prairie treatment.
+
+```{r}
+df <- STRIPSTyndall::revenue %>%
+  left_join(STRIPSMeta::watersheds) %>%
+  left_join(STRIPSMeta::crop_seed_info) %>%
+  filter(year > 2007) %>% # for PNAS paper we are not including 2007 (establishment)
+  mutate(crop_prop = 1-prairie_pct/100,
+         revenue = crop_prop * revenue - prairie_cost_per_acre * (1-crop_prop), 
+         any_prairie = ifelse(treatment == "0% prairie", 
+                              "No", 
+                              "Yes")) 
+
+df %>%
+  group_by(block, any_prairie, crop_species) %>%
+  summarize(mean = mean(revenue)) %>%
+  spread(any_prairie, mean) %>%
+  mutate(Diff = Yes - No) %>%
+  group_by(crop_species) %>%
+  summarize(mean_difference = mean(Diff, na.rm=TRUE))
+```
+
+## Using contrasts
+
+Corn analysis
+
+```{r}
+corn <- df %>% 
+  filter(crop_species == "corn") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + size_ha + (1|watershed) + (1|year), data=corn)
+
+# summary(m)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4)
+```
+
+
+
+Soybean analysis
+
+
+```{r}
+soybean <- df %>% 
+  filter(crop_species == "soybean") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + size_ha + (1|watershed) + (1|year), 
+          data=soybean)
+
+summary(m)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4)
+```
+

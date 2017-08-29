@@ -4,10 +4,11 @@
 \alias{pnas_data}
 \title{Construct economic data used in PNAS paper}
 \usage{
-pnas_data(prairie_cost = 95)
+pnas_data(prairie_cost_per_acre = 95)
 }
 \arguments{
-\item{prairie_cost}{A scalar indicating how much the prairie costs.}
+\item{prairie_cost_per_acre}{A scalar indicating how much the prairie per
+acre in dollars.}
 }
 \value{
 A \code{data.frame} containing the columns PI, source, watershed,
