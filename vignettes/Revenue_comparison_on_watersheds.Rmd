@@ -51,9 +51,9 @@ df %>%
   group_by(block, any_prairie, crop_species) %>%
   summarize(mean = mean(revenue)) %>%
   spread(any_prairie, mean) %>%
-  mutate(Diff = Yes - No) %>%
+  mutate(Diff = No - Yes) %>%
   group_by(crop_species) %>%
-  summarize(mean_difference = mean(Diff, na.rm=TRUE))
+  summarize(`No prairie - Any prairie` = mean(Diff, na.rm=TRUE))
 ```
 
 ## Using contrasts
@@ -65,13 +65,54 @@ corn <- df %>%
   filter(crop_species == "corn") %>%
   dplyr::select(revenue, treatment, block, size_ha, watershed, year)
   
-m <- lmer(revenue ~ treatment + block + size_ha + (1|watershed) + (1|year), data=corn)
+m <- lmer(revenue ~ treatment + block + (1|watershed) + (1|year), data=corn)
 
 # summary(m)
 
 m %>%
   lsmeans("treatment") %>%
-  contrast("trt.vs.ctrl", ref=2:4)
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
+```
+
+
+
+Soybean analysis
+
+
+```{r}
+soybean <- df %>% 
+  filter(crop_species == "soybean") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + (1|watershed) + (1|year), 
+          data=soybean)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
+```
+
+
+
+## Using contrasts including watershed size
+
+Corn analysis
+
+```{r}
+corn <- df %>% 
+  filter(crop_species == "corn") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + size_ha + (1|watershed) + (1|year), data=corn)
+
+summary(m)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
 ```
 
 
@@ -91,6 +132,49 @@ summary(m)
 
 m %>%
   lsmeans("treatment") %>%
-  contrast("trt.vs.ctrl", ref=2:4)
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
+```
+
+
+
+## Using contrasts include logarithm of watershed size
+
+Corn analysis
+
+```{r}
+corn <- df %>% 
+  filter(crop_species == "corn") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + log(size_ha) + (1|watershed) + (1|year), data=corn)
+
+summary(m)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
+```
+
+
+
+Soybean analysis
+
+
+```{r}
+soybean <- df %>% 
+  filter(crop_species == "soybean") %>%
+  dplyr::select(revenue, treatment, block, size_ha, watershed, year)
+  
+m <- lmer(revenue ~ treatment + block + log(size_ha) + (1|watershed) + (1|year), 
+          data=soybean)
+
+summary(m)
+
+m %>%
+  lsmeans("treatment") %>%
+  contrast("trt.vs.ctrl", ref=2:4) %>%
+  confint
 ```
 
